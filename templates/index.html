@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UruBelt - Cinturones y Collares de Cuero Legítimo</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header>
+        <h1 class="title">Bienvenidos a UruBelt</h1>
+        <p class="subtitle">Descubre nuestros cinturones y collares de cuero vacuno auténtico.</p>
+    </header>
+    <main>
+        <section>
+            <h2 class="section-title">Nuestros Productos</h2>
+            <button onclick="toggleCategory('cinturones')">CINTURONES</button>
+            <button onclick="toggleCategory('collares')">COLLARES</button>
+
+            <div id="cinturones" class="gallery" style="display: none;">
+                <div class="nav-button left" onclick="changeImage('cinturones', -1)">&#9664;</div>
+                <div class="product-container">
+                    <img id="cinturones-img" src="{{ url_for('static', filename='productos/cinturones/asjsis.1.jpg') }}" alt="Cinturón 1" onclick="addToCart('Cinturón 1', 100)">
+                </div>
+                <div class="nav-button right" onclick="changeImage('cinturones', 1)">&#9654;</div>
+            </div>
+
+            <div id="collares" class="gallery" style="display: none;">
+                <div class="nav-button left" onclick="changeImage('collares', -1)">&#9664;</div>
+                <div class="product-container">
+                    <img id="collares-img" src="{{ url_for('static', filename='productos/collares/coaskd.1.jpg') }}" alt="Collar 1" onclick="addToCart('Collar 1', 100)">
+                </div>
+                <div class="nav-button right" onclick="changeImage('collares', 1)">&#9654;</div>
+            </div>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2024 UruBelt. Todos los derechos reservados.</p>
+    </footer>
+
+    <div id="cart" class="cart">
+        <img src="{{ url_for('static', filename='imagenesestaticas/carrito.jpg') }}" alt="Carrito" onclick="toggleCart()">
+        <div id="cart-content" class="cart-content">
+            <h2>Carrito</h2>
+            <ul id="cart-items"></ul>
+            <p id="total-price">Total: $0</p>
+            <button onclick="clearCart()">Vaciar Carrito</button>
+        </div>
+    </div>
+
+    <script>
+        // Rutas de las imágenes
+        const cinturonesImages = [
+            '{{ url_for('static', filename='productos/cinturones/asjsis.1.jpg') }}',
+            '{{ url_for('static', filename='productos/cinturones/asjsis.2.jpg') }}',
+            '{{ url_for('static', filename='productos/cinturones/asjsis.3.jpg') }}',
+            '{{ url_for('static', filename='productos/cinturones/asjsis.4.jpg') }}',
+            '{{ url_for('static', filename='productos/cinturones/asjsis.5.jpg') }}',
+            '{{ url_for('static', filename='productos/cinturones/asjsis.6.jpg') }}',
+            '{{ url_for('static', filename='productos/cinturones/asjsis.7.jpg') }}',
+            '{{ url_for('static', filename='productos/cinturones/asjsis.8.jpg') }}',
+            '{{ url_for('static', filename='productos/cinturones/asjsis.9.jpg') }}',
+            '{{ url_for('static', filename='productos/cinturones/asjsis.10.jpg') }}'
+        ];
+
+        const collaresImages = [
+            '{{ url_for('static', filename='productos/collares/coaskd.1.jpg') }}',
+            '{{ url_for('static', filename='productos/collares/coaskd.2.jpg') }}',
+            '{{ url_for('static', filename='productos/collares/coaskd.3.jpg') }}',
+            '{{ url_for('static', filename='productos/collares/coaskd.4.jpg') }}',
+            '{{ url_for('static', filename='productos/collares/coaskd.5.jpg') }}',
+            '{{ url_for('static', filename='productos/collares/coaskd.6.jpg') }}',
+            '{{ url_for('static', filename='productos/collares/coaskd.7.jpg') }}',
+            '{{ url_for('static', filename='productos/collares/coaskd.8.jpg') }}',
+            '{{ url_for('static', filename='productos/collares/coaskd.9.jpg') }}',
+            '{{ url_for('static', filename='productos/collares/coaskd.10.jpg') }}'
+        ];
+
+        let cinturonesIndex = 0;
+        let collaresIndex = 0;
+        let cart = [];
+
+        function toggleCategory(category) {
+            const cinturonesDiv = document.getElementById('cinturones');
+            const collaresDiv = document.getElementById('collares');
+
+            if (category === 'cinturones') {
+                cinturonesDiv.style.display = 'block';
+                collaresDiv.style.display = 'none';
+                // Inicializa el índice al cambiar de categoría
+                cinturonesIndex = 0;
+                document.getElementById('cinturones-img').src = cinturonesImages[cinturonesIndex];
+            } else if (category === 'collares') {
+                collaresDiv.style.display = 'block';
+                cinturonesDiv.style.display = 'none';
+                // Inicializa el índice al cambiar de categoría
+                collaresIndex = 0;
+                document.getElementById('collares-img').src = collaresImages[collaresIndex];
+            }
+        }
+
+        function changeImage(category, direction) {
+            if (category === 'cinturones') {
+                cinturonesIndex = (cinturonesIndex + direction + cinturonesImages.length) % cinturonesImages.length;
+                document.getElementById('cinturones-img').src = cinturonesImages[cinturonesIndex];
+            } else if (category === 'collares') {
+                collaresIndex = (collaresIndex + direction + collaresImages.length) % collaresImages.length;
+                document.getElementById('collares-img').src = collaresImages[collaresIndex];
+            }
+        }
+
+        function addToCart(name, price) {
+            cart.push({ name, price });
+            updateCart();
+        }
+
+        function updateCart() {
+            const cartItems = document.getElementById('cart-items');
+            const totalPrice = document.getElementById('total-price');
+            cartItems.innerHTML = '';
+            let total = 0;
+            cart.forEach(item => {
+                const listItem = document.createElement('li');
+                listItem.textContent = `${item.name} - $${item.price}`;
+                cartItems.appendChild(listItem);
+                total += item.price;
+            });
+            totalPrice.textContent = `Total: $${total}`;
+        }
+
+        function toggleCart() {
+            const cartContent = document.getElementById('cart-content');
+            cartContent.style.display = cartContent.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function clearCart() {
+            cart = [];
+            updateCart();
+        }
+    </script>
+</body>
+</html>
